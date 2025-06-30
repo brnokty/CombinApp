@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "325704514499",
+    "project_id": "combinapp-brn",
+    "storage_bucket": "combinapp-brn.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:325704514499:android:6c8ee53f945b2b15809b76",
+        "android_client_info": {
+          "package_name": "com.anonymous.CombinApp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBinklBHTTpt0LRJuR_E4Upm-9RTiZIpv8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
