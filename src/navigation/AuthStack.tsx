@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 
 
+
 export type AuthStackParamList = {
   Login: undefined;
   Register: undefined;
@@ -26,13 +27,10 @@ const Stack = createNativeStackNavigator<AuthStackParamList>();
 const AuthStack = () => {
   return (
     <Stack.Navigator initialRouteName="Login">
-      <Stack.Screen name="Login" component={LoginScreen} options={{ title: 'CombinApp' }} />
-      <Stack.Screen name="Register" component={RegisterScreen} options={{ title: 'CombinApp' }} />
-      <Stack.Screen name="Home" component={HomeScreen} options={{
-    title: 'CombinApp',
+      <Stack.Screen name="Login" component={LoginScreen} options={{ title: 'CombinApp',
     headerTitleStyle: {
-      fontFamily: 'BGR_Font',  // Google Fonts veya kendi font dosyan
-      fontSize: 22,
+      fontFamily: 'Pacifico-Regular',  
+      fontSize: 25,
       color: '#333',
     },
     headerLeft: () => (
@@ -44,7 +42,52 @@ const AuthStack = () => {
     ),
   }}
 />
-      <Stack.Screen name="AddCombination" component={AddCombinationScreen} options={{ title: 'CombinApp' }}/>
+      <Stack.Screen name="Register" component={RegisterScreen} options={{ title: 'CombinApp',
+    headerTitleStyle: {
+      fontFamily: 'Pacifico-Regular',  
+      fontSize: 25,
+      color: '#333',
+    },
+    headerLeft: () => (
+      <Image
+        source={require('../../assets/Images/icon.png')}
+        style={{ width: 50, height: 50, marginLeft: -5 }}
+        resizeMode="contain"
+      />
+    ),
+  }}
+/>
+      <Stack.Screen name="Home" component={HomeScreen} options={{
+    title: 'CombinApp',
+    headerTitleStyle: {
+      fontFamily: 'Pacifico-Regular',  
+      fontSize: 25,
+      color: '#333',
+    },
+    headerLeft: () => (
+      <Image
+        source={require('../../assets/Images/icon.png')}
+        style={{ width: 50, height: 50, marginLeft: -5 }}
+        resizeMode="contain"
+      />
+    ),
+  }}
+/>
+      <Stack.Screen name="AddCombination" component={AddCombinationScreen} options={{ title: 'CombinApp',
+    headerTitleStyle: {
+      fontFamily: 'Pacifico-Regular',  
+      fontSize: 25,
+      color: '#333',
+    },
+    headerLeft: () => (
+      <Image
+        source={require('../../assets/Images/icon.png')}
+        style={{ width: 50, height: 50, marginLeft: -5 }}
+        resizeMode="contain"
+      />
+    ),
+  }}
+/>
     </Stack.Navigator>
   );
 };

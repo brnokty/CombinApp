@@ -7,6 +7,7 @@ import {
   Text,
   StyleSheet,
   Alert,
+  Image,
   TouchableOpacity,
 } from 'react-native';
 import { signInWithEmailAndPassword } from 'firebase/auth';
@@ -34,6 +35,7 @@ const LoginScreen = () => {
 
   return (
     <View style={styles.container}>
+      
       <Text style={styles.title}>Giriş Yap</Text>
 
       <TextInput
@@ -69,6 +71,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 24,
     backgroundColor: '#fff',
+    marginTop:-100,
   },
   input: {
     borderWidth: 1,

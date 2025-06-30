@@ -68,6 +68,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 24,
     backgroundColor: '#fff',
+     marginTop:-100,
   },
   input: {
     borderWidth: 1,
