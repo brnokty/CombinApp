@@ -4,6 +4,14 @@ import LoginScreen from '../screens/LoginScreen';
 import RegisterScreen from '../screens/RegisterScreen';
 import HomeScreen from '../screens/HomeScreen';
 import AddCombinationScreen from '../screens/AddCombinationScreen'; 
+import {
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  StyleSheet,
+  Image,
+} from 'react-native';
 
 
 export type AuthStackParamList = {
@@ -18,10 +26,25 @@ const Stack = createNativeStackNavigator<AuthStackParamList>();
 const AuthStack = () => {
   return (
     <Stack.Navigator initialRouteName="Login">
-      <Stack.Screen name="Login" component={LoginScreen} options={{ title: 'Giriş Yap' }} />
-      <Stack.Screen name="Register" component={RegisterScreen} options={{ title: 'Kayıt Ol' }} />
-      <Stack.Screen name="Home" component={HomeScreen} options={{ title: 'Anasayfa' }} />
-      <Stack.Screen name="AddCombination" component={AddCombinationScreen} options={{ title: 'Kombin Ekle' }}/>
+      <Stack.Screen name="Login" component={LoginScreen} options={{ title: 'CombinApp' }} />
+      <Stack.Screen name="Register" component={RegisterScreen} options={{ title: 'CombinApp' }} />
+      <Stack.Screen name="Home" component={HomeScreen} options={{
+    title: 'CombinApp',
+    headerTitleStyle: {
+      fontFamily: 'BGR_Font',  // Google Fonts veya kendi font dosyan
+      fontSize: 22,
+      color: '#333',
+    },
+    headerLeft: () => (
+      <Image
+        source={require('../../assets/Images/icon.png')}
+        style={{ width: 50, height: 50, marginLeft: -5 }}
+        resizeMode="contain"
+      />
+    ),
+  }}
+/>
+      <Stack.Screen name="AddCombination" component={AddCombinationScreen} options={{ title: 'CombinApp' }}/>
     </Stack.Navigator>
   );
 };

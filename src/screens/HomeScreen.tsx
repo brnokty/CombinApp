@@ -9,8 +9,8 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { db } from '../firebase/firebaseConfig';
-import { getAuth } from 'firebase/auth';
-import { collection,getDocs, query, where, onSnapshot } from 'firebase/firestore';
+import { getAuth, signOut } from 'firebase/auth';
+import { collection, getDocs, query, where, onSnapshot } from 'firebase/firestore';
 
 const CombinationCard = ({ topColor, bottomColor }) => {
   return (
@@ -18,13 +18,12 @@ const CombinationCard = ({ topColor, bottomColor }) => {
       <Image
         source={require('../../assets/Images/top.png')}
         style={[styles.image, { tintColor: topColor }]}
-        resizeMode="contain" 
+        resizeMode="contain"
       />
       <Image
         source={require('../../assets/Images/top_back.png')}
-        style={[styles.backImage, {}]}
+        style={styles.backImage}
       />
-       
       <Image
         source={require('../../assets/Images/bottom.png')}
         style={[styles.image, { tintColor: bottomColor }]}
@@ -32,7 +31,7 @@ const CombinationCard = ({ topColor, bottomColor }) => {
       />
       <Image
         source={require('../../assets/Images/bottom_back.png')}
-        style={[styles.backImage, {}]}
+        style={styles.backImage}
       />
     </View>
   );
@@ -42,35 +41,25 @@ const HomeScreen = () => {
   const navigation = useNavigation();
   const [combinations, setCombinations] = useState([]);
 
-  const fetchCombinations = async () => {
-    try {
-      const snapshot = await getDocs(collection(db, 'combinations'));
-      const data = snapshot.docs.map(doc => doc.data());
-      setCombinations(data);
-    } catch (error) {
-      console.error('Error fetching combinations:', error);
-    }
-  };
-
   useEffect(() => {
-  const user = getAuth().currentUser;
-  if (!user) return;
+    const user = getAuth().currentUser;
+    if (!user) return;
 
-  const q = query(
-    collection(db, 'combinations'),
-    where('userId', '==', user.uid)
-  );
+    const q = query(
+      collection(db, 'combinations'),
+      where('userId', '==', user.uid)
+    );
 
-  const unsubscribe = onSnapshot(q, (snapshot) => {
-    const userCombinations = snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
-    setCombinations(userCombinations);
-  });
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const userCombinations = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setCombinations(userCombinations);
+    });
 
-  return () => unsubscribe();
-}, []);
+    return () => unsubscribe();
+  }, []);
 
   const renderItem = ({ item }) => {
     if (item.isAddButton) {
@@ -91,8 +80,24 @@ const HomeScreen = () => {
     );
   };
 
+  const handleLogout = async () => {
+    try {
+      await signOut(getAuth());
+      navigation.replace('Login');
+    } catch (error) {
+      console.error('Çıkış hatası:', error);
+    }
+  };
+
   return (
     <View style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.title}></Text>
+        <TouchableOpacity onPress={handleLogout}>
+          <Text style={styles.logoutText}>Çıkış</Text>
+        </TouchableOpacity>
+      </View>
+
       <FlatList
         data={[{ isAddButton: true }, ...combinations]}
         keyExtractor={(item, index) => index.toString()}
@@ -111,6 +116,21 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     paddingTop: 16,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingBottom: 8,
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  logoutText: {
+    fontSize: 16,
+    color: '#007AFF',
   },
   list: {
     justifyContent: 'center',
@@ -134,8 +154,8 @@ const styles = StyleSheet.create({
   backImage: {
     width: 80,
     height: 80,
-    marginTop:-70,
-    position:"relative"
+    marginTop: -70,
+    position: 'relative',
   },
   addButtonCard: {
     width: 120,
