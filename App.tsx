@@ -1,8 +1,12 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import * as SplashScreen from 'expo-splash-screen';
 import * as Font from 'expo-font';
 import { NavigationContainer } from '@react-navigation/native';
 import AuthStack from './src/navigation/AuthStack';
+import { Provider } from 'react-redux';
+import { store } from './src/store';
+ // Redux store
+
 import {
   useFonts,
   Poppins_400Regular,
@@ -35,8 +39,10 @@ export default function App() {
   }
 
   return (
-    <NavigationContainer onReady={onLayoutRootView}>
-      <AuthStack />
-    </NavigationContainer>
+    <Provider store={store}>
+      <NavigationContainer onReady={onLayoutRootView}>
+        <AuthStack />
+      </NavigationContainer>
+    </Provider>
   );
 }
