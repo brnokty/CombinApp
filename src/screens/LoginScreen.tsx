@@ -7,7 +7,6 @@ import {
   Text,
   StyleSheet,
   Alert,
-  Image,
   TouchableOpacity,
 } from 'react-native';
 import { signInWithEmailAndPassword } from 'firebase/auth';
@@ -15,19 +14,29 @@ import { auth } from '../firebase/firebaseConfig';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { AuthStackParamList } from '../navigation/AuthStack';
+import { useDispatch } from 'react-redux';
+import { setUser } from '../store/slices/userSlice'; // redux'taki action'ı import ediyoruz
 
 const LoginScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-
   const navigation =
     useNavigation<NativeStackNavigationProp<AuthStackParamList>>();
 
+  const dispatch = useDispatch();
+
   const handleLogin = async () => {
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      dispatch(setUser({
+        uid: user.uid,
+        email: user.email,
+      }));
+
       Alert.alert('Başarılı', 'Giriş yapıldı!');
-      navigation.replace('Home'); // Home ekranına yönlendirme (bir sonraki adımda yapılacak)
+      navigation.replace('Home');
     } catch (error: any) {
       Alert.alert('Hata', error.message);
     }
@@ -35,7 +44,6 @@ const LoginScreen = () => {
 
   return (
     <View style={styles.container}>
-      
       <Text style={styles.title}>Giriş Yap</Text>
 
       <TextInput
@@ -71,7 +79,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 24,
     backgroundColor: '#fff',
-    marginTop:-100,
+    marginTop: -100,
   },
   input: {
     borderWidth: 1,
