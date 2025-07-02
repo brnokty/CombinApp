@@ -71,6 +71,7 @@ const AuthStack = () => {
         resizeMode="contain"
       />
     ),
+    
   }}
 />
       <Stack.Screen name="AddCombination" component={AddCombinationScreen} options={{ title: 'CombinApp',

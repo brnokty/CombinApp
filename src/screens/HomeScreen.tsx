@@ -118,7 +118,8 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   list: {
-    alignItems: 'flex-start',
+    alignItems: "flex-start",
+    alignSelf:"center"
   },
   card: {
     width: 120,
