@@ -44,7 +44,6 @@ export const addCombination = createAsyncThunk(
   async (payload: Combination & { userId: string }, thunkAPI) => {
     try {
       await addDoc(collection(db, 'combinations'), payload);
-      // Burada payload'ı döndürmüyoruz çünkü yeniden fetch edeceğiz
       return;
     } catch (error: any) {
       return thunkAPI.rejectWithValue(error.message);
