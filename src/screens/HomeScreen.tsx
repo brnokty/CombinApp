@@ -112,14 +112,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'flex-end',
     paddingHorizontal: 12,
-    paddingBottom: 8,
+    paddingBottom: 0,
   },
   logoutButton: {
     padding: 8,
   },
   list: {
     alignItems: "flex-start",
-    alignSelf:"center"
+    alignSelf:"center",
   },
   card: {
     width: 120,
