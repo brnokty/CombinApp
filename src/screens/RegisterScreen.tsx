@@ -1,60 +1,53 @@
+// src/screens/RegisterScreen.tsx
 import React, { useState } from 'react';
-import {
-  View,
-  TextInput,
-  Button,
-  Text,
-  StyleSheet,
-  Alert,
-  TouchableOpacity,
-} from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Alert, TouchableOpacity } from 'react-native';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebase/firebaseConfig';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useDispatch } from 'react-redux';
+import { setUser } from '../store/slices/userSlice';
 import type { AuthStackParamList } from '../navigation/AuthStack';
 
 const RegisterScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-
-  const navigation =
-    useNavigation<NativeStackNavigationProp<AuthStackParamList>>();
+  const navigation = useNavigation<NativeStackNavigationProp<AuthStackParamList>>();
+  const dispatch = useDispatch();
 
   const handleRegister = async () => {
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      Alert.alert('Başarılı', 'Hesap oluşturuldu!');
-      navigation.replace('Home'); // Kayıt sonrası anasayfaya yönlendirme
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      dispatch(setUser({ uid: userCredential.user.uid, email }));
+      Alert.alert('Başarılı', 'Kayıt işlemi tamamlandı!');
+      navigation.replace('Home');
     } catch (error: any) {
-      Alert.alert('Hata', error.message);
+      Alert.alert('Kayıt Hatası', error.message);
     }
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Kayıt Ol</Text>
-
       <TextInput
-        style={styles.input}
         placeholder="Email"
         value={email}
-        autoCapitalize="none"
         onChangeText={setEmail}
-      />
-
-      <TextInput
         style={styles.input}
+        keyboardType="email-address"
+        autoCapitalize="none"
+      />
+      <TextInput
         placeholder="Şifre"
-        secureTextEntry
         value={password}
         onChangeText={setPassword}
+        style={styles.input}
+        secureTextEntry
       />
-
       <Button title="Kayıt Ol" onPress={handleRegister} />
 
       <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-        <Text style={styles.linkText}>Zaten hesabın var mı? Giriş Yap</Text>
+        <Text style={styles.switchText}>Zaten bir hesabın var mı? Giriş Yap</Text>
       </TouchableOpacity>
     </View>
   );
@@ -66,26 +59,27 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    padding: 24,
+    padding: 16,
     backgroundColor: '#fff',
-     marginTop:-100,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    marginBottom: 12,
-    padding: 12,
-    borderRadius: 6,
   },
   title: {
     fontSize: 24,
+    fontWeight: 'bold',
     marginBottom: 24,
     textAlign: 'center',
-    fontWeight: 'bold',
   },
-  linkText: {
+  input: {
+    height: 48,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    marginBottom: 16,
+  },
+  switchText: {
     marginTop: 16,
-    color: '#007bff',
+    color: '#007AFF',
     textAlign: 'center',
+    fontWeight: '500',
   },
 });

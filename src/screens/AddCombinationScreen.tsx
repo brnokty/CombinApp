@@ -1,9 +1,11 @@
+// src/screens/AddCombinationScreen.tsx
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
-import { collection, addDoc } from 'firebase/firestore';
-import { db } from '../firebase/firebaseConfig';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Alert } from 'react-native';
 import WheelColorPicker from 'react-native-wheel-color-picker';
-import { getAuth } from 'firebase/auth';
+import { useDispatch, useSelector } from 'react-redux';
+import { addCombination } from '../store/slices/combinationSlice';
+import { RootState } from '../store';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 
 const AddCombinationScreen = ({ navigation }) => {
@@ -11,29 +13,34 @@ const AddCombinationScreen = ({ navigation }) => {
   const [bottomColor, setBottomColor] = useState('#00ff80');
   const [selectedPart, setSelectedPart] = useState<'top' | 'bottom'>('top');
 
-  const auth = getAuth();
+  const dispatch = useDispatch();
+  const user = useSelector((state: RootState) => state.user);
 
-const handleSaveCombination = async () => {
+  const handleSaveCombination = async () => {
+  if (!user) {
+    Alert.alert('Hata', 'Kullanıcı bilgisi alınamad');
+    return;
+  }
+
+  const payload = {
+    topColor,
+    bottomColor,
+    createdAt: new Date().toISOString(),
+    userId: user.uid,
+  };
+
   try {
-    navigation.goBack();
-    const user = auth.currentUser;
-    if (!user) return;
-
-    await addDoc(collection(db, 'combinations'), {
-      topColor: topColor,
-      bottomColor: bottomColor,
-      createdAt: new Date().toISOString(),
-      userId: user.uid, // kullanıcıya ait
-    });
-
-    
+    await dispatch(addCombination(payload)).unwrap(); 
+    //navigation.goBack(); // 
+    navigation.replace('Home');
   } catch (error) {
-    console.error('Error saving combination:', error);
+    Alert.alert('Hata', 'Kombin eklenirken bir sorun oluştu.');
+    console.error(error);
   }
 };
 
 
-  const handleColorChange = (color) => {
+  const handleColorChange = (color: string) => {
     if (selectedPart === 'top') {
       setTopColor(color);
     } else {
@@ -43,28 +50,35 @@ const handleSaveCombination = async () => {
 
   return (
     <View style={styles.container}>
+       <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+    <Ionicons name="arrow-back" size={28} color="#000" />
+  </TouchableOpacity>
       <Text style={styles.title}>Yeni Kombin Oluştur</Text>
+
       <TouchableOpacity onPress={() => setSelectedPart('top')}>
         <Image
           source={require('../../assets/Images/top.png')}
-          style={[styles.image, selectedPart === 'top' && styles.selected, { tintColor: topColor }]}
+          style={[
+            styles.image,
+            selectedPart === 'top' && styles.selected,
+            { tintColor: topColor },
+          ]}
           resizeMode="contain"
         />
-        <Image
-                source={require('../../assets/Images/top_back.png')}
-                style={[styles.backImage, {}]}
-              />
+        <Image source={require('../../assets/Images/top_back.png')} style={styles.backImage} />
       </TouchableOpacity>
+
       <TouchableOpacity onPress={() => setSelectedPart('bottom')}>
         <Image
           source={require('../../assets/Images/bottom.png')}
-          style={[styles.image, selectedPart === 'bottom' && styles.selected, { tintColor: bottomColor }]}
+          style={[
+            styles.image,
+            selectedPart === 'bottom' && styles.selected,
+            { tintColor: bottomColor },
+          ]}
           resizeMode="contain"
         />
-        <Image
-                source={require('../../assets/Images/bottom_back.png')}
-                style={[styles.backImage, {}]}
-              />
+        <Image source={require('../../assets/Images/bottom_back.png')} style={styles.backImage} />
       </TouchableOpacity>
 
       <Text style={styles.label}>Renk Seç</Text>
@@ -72,7 +86,13 @@ const handleSaveCombination = async () => {
         onColorChange={handleColorChange}
         style={styles.picker}
         initialColor={selectedPart === 'top' ? topColor : bottomColor}
-        thumbStyle={{ width: 20, height: 20, borderRadius: 10, borderWidth: 2, borderColor: '#fff' }}
+        thumbStyle={{
+          width: 20,
+          height: 20,
+          borderRadius: 10,
+          borderWidth: 2,
+          borderColor: '#fff',
+        }}
       />
 
       <TouchableOpacity style={styles.button} onPress={handleSaveCombination}>
@@ -101,11 +121,11 @@ const styles = StyleSheet.create({
     height: 150,
     marginBottom: 16,
   },
-   backImage: {
+  backImage: {
     width: 150,
     height: 150,
-    marginTop:-166,
-    position:"relative"
+    marginTop: -166,
+    position: 'relative',
   },
   selected: {
     borderWidth: 3,
@@ -133,5 +153,8 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#fff',
     fontWeight: 'bold',
+  },
+  backButton:{
+    alignSelf:"flex-start",
   },
 });

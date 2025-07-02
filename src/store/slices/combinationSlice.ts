@@ -28,7 +28,10 @@ export const fetchCombinations = createAsyncThunk(
     try {
       const q = query(collection(db, 'combinations'), where('userId', '==', userId));
       const snapshot = await getDocs(q);
-      const data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })) as Combination[];
+      const data = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...(doc.data() as Omit<Combination, 'id'>),
+      }));
       return data;
     } catch (error: any) {
       return thunkAPI.rejectWithValue(error.message);
@@ -41,7 +44,8 @@ export const addCombination = createAsyncThunk(
   async (payload: Combination & { userId: string }, thunkAPI) => {
     try {
       await addDoc(collection(db, 'combinations'), payload);
-      return payload;
+      // Burada payload'ı döndürmüyoruz çünkü yeniden fetch edeceğiz
+      return;
     } catch (error: any) {
       return thunkAPI.rejectWithValue(error.message);
     }
@@ -67,7 +71,7 @@ const combinationSlice = createSlice({
         state.error = action.payload as string;
       })
       .addCase(addCombination.fulfilled, (state, action) => {
-        state.combinations.unshift(action.payload);
+      state.combinations.unshift(action.payload);
       });
   },
 });

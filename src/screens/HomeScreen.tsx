@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import {
   View,
   Text,
@@ -6,13 +6,16 @@ import {
   TouchableOpacity,
   StyleSheet,
   Image,
+  Alert,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { db } from '../firebase/firebaseConfig';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchCombinations } from '../store/slices/combinationSlice';
+import { RootState } from '../store';
 import { getAuth, signOut } from 'firebase/auth';
-import { collection, getDocs, query, where, onSnapshot } from 'firebase/firestore';
+import { Ionicons } from '@expo/vector-icons';
 
-const CombinationCard = ({ topColor, bottomColor }) => {
+const CombinationCard = ({ topColor, bottomColor }: { topColor: string; bottomColor: string }) => {
   return (
     <View style={styles.card}>
       <Image
@@ -39,68 +42,56 @@ const CombinationCard = ({ topColor, bottomColor }) => {
 
 const HomeScreen = () => {
   const navigation = useNavigation();
-  const [combinations, setCombinations] = useState([]);
+  const dispatch = useDispatch();
+  const { combinations } = useSelector((state: RootState) => state.combinations);
+  const auth = getAuth();
+  const user = auth.currentUser;
 
   useEffect(() => {
-    const user = getAuth().currentUser;
-    if (!user) return;
-
-    const q = query(
-      collection(db, 'combinations'),
-      where('userId', '==', user.uid)
-    );
-
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const userCombinations = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setCombinations(userCombinations);
-    });
-
-    return () => unsubscribe();
-  }, []);
-
-  const renderItem = ({ item }) => {
-    if (item.isAddButton) {
-      return (
-        <TouchableOpacity
-          style={styles.addButtonCard}
-          onPress={() => navigation.navigate('AddCombination')}
-        >
-          <Text style={styles.addButtonText}>+</Text>
-        </TouchableOpacity>
-      );
+    if (user?.uid) {
+      dispatch(fetchCombinations(user.uid));
     }
-    return (
-      <CombinationCard
-        topColor={item.topColor}
-        bottomColor={item.bottomColor}
-      />
-    );
-  };
+  }, [user]);
 
   const handleLogout = async () => {
     try {
-      await signOut(getAuth());
-      navigation.replace('Login');
-    } catch (error) {
-      console.error('Çıkış hatası:', error);
+      await signOut(auth);
+      navigation.navigate('Login' as never);
+    } catch (error: any) {
+      Alert.alert('Çıkış Hatası', error.message);
     }
   };
+
+  const renderItem = ({ item }: any) => {
+  if (item?.isAddButton) {
+    return (
+      <TouchableOpacity
+        style={styles.addButtonCard}
+        onPress={() => navigation.navigate('AddCombination' as never)}
+      >
+        <Text style={styles.addButtonText}>+</Text>
+      </TouchableOpacity>
+    );
+  }
+
+  if (item?.topColor && item?.bottomColor) {
+    return <CombinationCard topColor={item.topColor} bottomColor={item.bottomColor} />;
+  }
+
+  return null;
+};
+
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}></Text>
-        <TouchableOpacity onPress={handleLogout}>
-          <Text style={styles.logoutText}>Çıkış</Text>
+        <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
+          <Ionicons name="log-out-outline" size={24} color="#000" />
         </TouchableOpacity>
       </View>
-
       <FlatList
         data={[{ isAddButton: true }, ...combinations]}
-        keyExtractor={(item, index) => index.toString()}
+        keyExtractor={(_, index) => index.toString()}
         numColumns={3}
         renderItem={renderItem}
         contentContainerStyle={styles.list}
@@ -119,21 +110,14 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
+    justifyContent: 'flex-end',
+    paddingHorizontal: 12,
     paddingBottom: 8,
   },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  logoutText: {
-    fontSize: 16,
-    color: '#007AFF',
+  logoutButton: {
+    padding: 8,
   },
   list: {
-    justifyContent: 'center',
     alignItems: 'flex-start',
   },
   card: {
